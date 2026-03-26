@@ -307,7 +307,7 @@ header, section, footer, nav{
   z-index:1;
 }
 
-/* GLOBAL RESPONSIVE FIX */
+/* ================= GLOBAL FIX ================= */
 * {
   box-sizing: border-box;
 }
@@ -317,64 +317,31 @@ body {
   padding: 0;
 }
 
-/* MAKE SECTIONS MOBILE FRIENDLY */
+/* ================= SECTION ================= */
 section {
-  padding: 20px;
+  padding: 60px 20px;
 }
 
-/* FLEX FIX */
+/* ================= CARD ================= */
 .card {
   width: 100%;
   max-width: 400px;
-  margin: 15px auto;
+  margin: 20px auto;
 }
 
-/* BUTTON FIX */
+/* ================= BUTTON ================= */
 button {
-  width: 100%;
+  width: auto;
   max-width: 250px;
 }
 
-/* NAVBAR MOBILE */
-nav {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-/* FORM INPUT FIX */
+/* ================= FORM ================= */
 input, textarea {
   width: 100%;
   padding: 10px;
 }
 
-/* MOBILE VIEW */
-@media (max-width: 768px) {
-
-  h1 {
-    font-size: 22px;
-  }
-
-  h2 {
-    font-size: 20px;
-  }
-
-  .hero {
-    padding: 40px 15px;
-  }
-
-  .logo-container {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  nav a {
-    display: block;
-    margin: 8px 0;
-  }
-
-}
-
+/* ================= CARD BUTTON GROUP ================= */
 .card div {
   display: flex;
   flex-wrap: wrap;
@@ -383,4 +350,68 @@ input, textarea {
 
 .card button {
   margin: 5px;
+}
+
+/* ================= MOBILE RESPONSIVE ================= */
+@media (max-width: 768px){
+
+  /* HEADER */
+  header{
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+  }
+
+  .logo-container{
+    flex-direction: column;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  /* NAV FIX (MAIN PROBLEM SOLVED HERE) */
+  nav{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+  }
+
+  nav a{
+    width: 90%;
+    margin: 6px 0;
+    padding: 12px;
+    text-align: center;
+    border-radius: 8px;
+
+    /* MATCH YOUR THEME */
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(8px);
+
+    /* REMOVE INLINE BUTTON STYLE EFFECT */
+    display: block;
+  }
+
+  /* HERO */
+  .hero{
+    height: auto;
+    padding: 50px 15px;
+  }
+
+  .hero h2{
+    font-size: 28px;
+  }
+
+  .hero p{
+    font-size: 15px;
+  }
+
+  /* TEXT */
+  h1{
+    font-size: 22px;
+  }
+
+  h2{
+    font-size: 24px;
+  }
+
 }
