@@ -306,3 +306,81 @@ header, section, footer, nav{
   position:relative;
   z-index:1;
 }
+
+/* GLOBAL RESPONSIVE FIX */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* MAKE SECTIONS MOBILE FRIENDLY */
+section {
+  padding: 20px;
+}
+
+/* FLEX FIX */
+.card {
+  width: 100%;
+  max-width: 400px;
+  margin: 15px auto;
+}
+
+/* BUTTON FIX */
+button {
+  width: 100%;
+  max-width: 250px;
+}
+
+/* NAVBAR MOBILE */
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* FORM INPUT FIX */
+input, textarea {
+  width: 100%;
+  padding: 10px;
+}
+
+/* MOBILE VIEW */
+@media (max-width: 768px) {
+
+  h1 {
+    font-size: 22px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  .hero {
+    padding: 40px 15px;
+  }
+
+  .logo-container {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  nav a {
+    display: block;
+    margin: 8px 0;
+  }
+
+}
+
+.card div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.card button {
+  margin: 5px;
+}
