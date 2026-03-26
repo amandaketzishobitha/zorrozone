@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Services | ZORROZONE</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body>
+
+<header>
+  <div class="logo-container">
+    <img src="/images/logo.png">
+    <h1>ZORROZONE</h1>
+  </div>
+
+  <nav>
+    <a href="/">Home</a>
+    <a href="/about.html">About</a>
+    <a href="/services.html">Services</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/signup.html">Register</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <h2>Our <span>Services</span></h2>
+  <p>Choose your internship domain and start your journey</p>
+</section>
+
+<!-- SERVICES -->
+<section>
+
+  <h2>Web Development</h2>
+  <div class="card">
+    <p>Build modern websites and applications.</p>
+    <div>
+      <button onclick="goToRegister('Frontend')">Frontend</button>
+      <button onclick="goToRegister('Backend')">Backend</button>
+      <button onclick="goToRegister('Full Stack')">Full Stack</button>
+      <button onclick="goToRegister('MERN Stack')">MERN Stack</button>
+    </div>
+  </div>
+
+  <h2>Design</h2>
+  <div class="card">
+    <p>Learn UI/UX design skills.</p>
+    <button onclick="goToRegister('UI/UX')">UI/UX</button>
+  </div>
+
+  <h2>Data Analytics</h2>
+  <div class="card">
+    <p>Analyze and visualize data.</p>
+    <button onclick="goToRegister('MySQL')">MySQL</button>
+    <button onclick="goToRegister('Excel')">Excel</button>
+    <button onclick="goToRegister('Power BI')">Power BI</button>
+  </div>
+
+  <h2>Programming Languages</h2>
+  <div class="card">
+    <p>Build strong coding foundation.</p>
+    <button onclick="goToRegister('C')">C</button>
+    <button onclick="goToRegister('Python')">Python</button>
+    <button onclick="goToRegister('C++')">C++</button>
+    <button onclick="goToRegister('Java')">Java</button>
+  </div>
+
+</section>
+
+<footer>
+  <p>© 2026 ZORROZONE</p>
+</footer>
+
+<script>
+function goToRegister(course){
+  window.location.href = `/signup.html?course=${encodeURIComponent(course)}`;
+}
+</script>
+
+</body>
+</html>

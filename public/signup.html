@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signup | ZORROZONE</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+<style>
+.popup{
+  position:fixed;
+  top:20px;
+  right:20px;
+  background:linear-gradient(135deg,#ec4899,#7c3aed);
+  color:white;
+  padding:12px 20px;
+  border-radius:8px;
+  opacity:0;
+  transition:0.4s;
+}
+.popup.show{
+  opacity:1;
+}
+</style>
+
+</head>
+
+<body>
+
+<header>
+  <div class="logo-container">
+    <img src="/images/logo.png">
+    <h1>ZORROZONE</h1>
+  </div>
+
+  <nav>
+    <a href="/">Home</a>
+    <a href="/services.html">Services</a>
+  </nav>
+</header>
+
+<section>
+
+<h2>Create Your Account</h2>
+<p>Register for your selected course</p>
+
+<form id="signupForm">
+
+<input type="text" name="name" placeholder="Full Name" required><br><br>
+<input type="email" name="email" placeholder="Email" required><br><br>
+<input type="text" name="mobile" placeholder="Mobile" required><br><br>
+
+<!-- ✅ HIDDEN COURSE FIELD -->
+<input type="hidden" name="course" id="courseInput">
+
+<p id="selectedCourse" style="font-weight:bold; color:#7c3aed;"></p>
+
+<button type="submit">Register</button>
+
+</form>
+
+</section>
+
+<div id="popup" class="popup"></div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const form = document.getElementById("signupForm");
+
+  // ✅ GET COURSE FROM URL
+  const params = new URLSearchParams(window.location.search);
+  const course = params.get("course");
+
+  if(course){
+    document.getElementById("courseInput").value = course;
+    document.getElementById("selectedCourse").innerText = "Course: " + course;
+  } else {
+    alert("Please select a course from Services page");
+    window.location.href = "/services.html";
+  }
+
+  form.addEventListener("submit", async function(e){
+    e.preventDefault();
+
+    const data = {
+      name: form.name.value,
+      email: form.email.value,
+      mobile: form.mobile.value,
+      course: form.course.value
+    };
+
+    console.log("Sending:", data);
+
+    try{
+      const response = await fetch("/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if(response.ok){
+        window.location.href = `/success.html?course=${encodeURIComponent(data.course)}`;
+      } else {
+        alert(result.message);
+      }
+
+    } catch(err){
+      console.log(err);
+      alert("Server not responding");
+    }
+
+  });
+
+});
+</script>
+
+</body>
+</html>
