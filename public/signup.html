@@ -70,6 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const form = document.getElementById("signupForm");
 
+  // ✅ GET COURSE FROM URL
   const params = new URLSearchParams(window.location.search);
   const course = params.get("course");
 
@@ -88,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
       name: form.name.value,
       email: form.email.value,
       mobile: form.mobile.value,
-      course: form.course.value
+      course: course   // ✅ IMPORTANT FIX
     };
 
     try{
@@ -100,23 +101,16 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify(data)
       });
 
-      // ✅ SAFE RESPONSE HANDLING
-      let result;
-      try {
-        result = await response.json();
-      } catch {
-        result = { message: "Unknown response from server" };
-      }
-
-      if(response.ok){
-        // ✅ SUCCESS → REDIRECT
-        window.location.href = `/success.html?course=${encodeURIComponent(data.course)}`;
+      // ✅ NO JSON PARSE (prevents crash)
+      if(response.status === 200){
+        window.location.href = `/success.html?course=${encodeURIComponent(course)}`;
       } else {
-        alert(result.message || "Registration failed");
+        const text = await response.text();
+        alert(text || "Registration failed");
       }
 
     } catch(err){
-      console.log("Fetch error:", err);
+      console.log("Error:", err);
       alert("Server not responding");
     }
 
