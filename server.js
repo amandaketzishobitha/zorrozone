@@ -1,5 +1,5 @@
 const express = require("express");
-const mysql = require("mysql2");
+const { Pool } = require("pg");
 const nodemailer = require("nodemailer");
 const path = require("path");
 
@@ -10,19 +10,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
-/* DATABASE */
-const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "rootroot",
-  database: "zorrozone"
-});
-
-db.connect(err => {
-  if (err) {
-    console.log("❌ DB Error:", err);
-  } else {
-    console.log("✅ MySQL Connected");
+/* DATABASE (PostgreSQL - Railway) */
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
   }
 });
 
@@ -30,42 +22,30 @@ db.connect(err => {
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-  user: process.env.EMAIL,
-  pass: process.env.EMAIL_PASS
-}
+    user: process.env.EMAIL,
+    pass: process.env.EMAIL_PASS
+  }
 });
 
 /* REGISTER */
-app.post("/register", (req, res) => {
-
-  console.log("BODY:", req.body);
+app.post("/register", async (req, res) => {
 
   const { name, email, mobile, course } = req.body;
 
-  // ✅ VALIDATION
   if (!name || !email || !mobile || !course) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  const sql = "INSERT INTO users (name,email,mobile,course) VALUES (?,?,?,?)";
+  try {
 
-  db.query(sql, [name, email, mobile, course], (err, result) => {
+    const sql = "INSERT INTO users (name,email,mobile,course) VALUES ($1,$2,$3,$4)";
+    await pool.query(sql, [name, email, mobile, course]);
 
-    if (err) {
-      console.log("DB ERROR:", err);
-
-      if (err.code === "ER_DUP_ENTRY") {
-        return res.status(400).json({ message: "Email already registered" });
-      }
-
-      return res.status(500).json({ message: "Database error" });
-    }
-
-    console.log("✅ User inserted:", result.insertId);
+    console.log("✅ User inserted");
 
     /* USER MAIL */
-    transporter.sendMail({
-      from: "zorrozone0607@gmail.com",
+    await transporter.sendMail({
+      from: process.env.EMAIL,
       to: email,
       subject: "ZORROZONE Registration Successful",
       text: `Hello ${name},
@@ -78,9 +58,9 @@ We will contact you shortly.
     });
 
     /* ADMIN MAIL */
-    transporter.sendMail({
-      from: "zorrozone0607@gmail.com",
-      to: "zorrozone0607@gmail.com",
+    await transporter.sendMail({
+      from: process.env.EMAIL,
+      to: process.env.EMAIL,
       subject: "New Registration",
       text: `
 New Registration:
@@ -94,97 +74,116 @@ Course: ${course}
 
     res.status(200).json({ message: "Success" });
 
-  });
+  } catch (err) {
+
+    console.log("DB ERROR:", err);
+
+    if (err.code === "23505") {
+      return res.status(400).json({ message: "Email already registered" });
+    }
+
+    res.status(500).json({ message: "Server error" });
+  }
 
 });
 
-/* DASHBOARD PAGE */
-app.get("/dashboard", (req, res) => {
+/* DASHBOARD (REAL DATA) */
+app.get("/dashboard/:email", async (req, res) => {
 
-  const user = {
-    name: "User",
-    email: "example@email.com",
-    mobile: "0000000000",
-    course: "Demo Course"
-  };
+  const email = req.params.email;
 
-  const activityHTML = "<p>No activity yet</p>";
-  const adminLink = "";
+  try {
 
-  let html = `
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard | ZORROZONE</title>
+    const result = await pool.query(
+      "SELECT * FROM users WHERE email = $1",
+      [email]
+    );
 
-  <link rel="stylesheet" href="/css/style.css">
+    if (result.rows.length === 0) {
+      return res.send("<h2>User not found</h2>");
+    }
 
-  <style>
-  .dashboard{
-    max-width:900px;
-    margin:100px auto;
-    padding:20px;
-    text-align:center;
-  }
+    const user = result.rows[0];
 
-  .user-card{
-    background:white;
-    padding:30px;
-    border-radius:15px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.1);
-  }
+    let html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | ZORROZONE</title>
 
-  .activity{
-    margin-top:30px;
-    text-align:left;
-  }
+    <link rel="stylesheet" href="/css/style.css">
 
-  .activity p{
-    background:#f8fafc;
-    padding:10px;
-    border-radius:8px;
-    margin:8px 0;
-  }
-  </style>
+    <style>
+    .dashboard{
+      max-width:900px;
+      margin:100px auto;
+      padding:20px;
+      text-align:center;
+    }
 
-  </head>
+    .user-card{
+      background:white;
+      padding:30px;
+      border-radius:15px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.1);
+    }
 
-  <body>
+    .activity{
+      margin-top:30px;
+      text-align:left;
+    }
 
-  <header>
-    <div class="logo-container">
-      <img src="/images/logo.png">
-      <h1>ZORROZONE</h1>
+    .activity p{
+      background:#f8fafc;
+      padding:10px;
+      border-radius:8px;
+      margin:8px 0;
+    }
+    </style>
+
+    </head>
+
+    <body>
+
+    <header>
+      <div class="logo-container">
+        <img src="/images/logo.png">
+        <h1>ZORROZONE</h1>
+      </div>
+    </header>
+
+    <div class="dashboard">
+
+      <div class="user-card">
+        <h2>Welcome ${user.name} 👋</h2>
+        <p><b>Email:</b> ${user.email}</p>
+        <p><b>Mobile:</b> ${user.mobile}</p>
+        <p><b>Course:</b> ${user.course}</p>
+      </div>
+
+      <div class="activity">
+        <h3>Recent Activity</h3>
+        <p>Registered successfully 🎉</p>
+      </div>
+
     </div>
-  </header>
 
-  <div class="dashboard">
+    </body>
+    </html>
+    `;
 
-    <div class="user-card">
-      <h2>Welcome ${user.name} 👋</h2>
-      <p><b>Email:</b> ${user.email}</p>
-      <p><b>Mobile:</b> ${user.mobile}</p>
-      <p><b>Course:</b> ${user.course}</p>
-    </div>
+    res.send(html);
 
-    <div class="activity">
-      <h3>Recent Activity</h3>
-      ${activityHTML}
-    </div>
-
-  </div>
-
-  </body>
-  </html>
-  `;
-
-  res.send(html);
+  } catch (err) {
+    console.log(err);
+    res.send("Error loading dashboard");
+  }
 
 });
 
 /* SERVER */
 app.listen(3000, () => {
-  console.log("🚀 http://localhost:3000");
+  console.log("🚀 Server running on port 3000");
 });
